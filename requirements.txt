@@ -1,0 +1,9 @@
+flask
+markupsafe
+pandas
+dnspython
+python-whois
+openpyxl
+matplotlib
+fpdf
+pillow

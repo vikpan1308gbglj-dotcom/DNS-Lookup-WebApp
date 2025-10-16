@@ -143,11 +143,10 @@ def results(job_id):
     html_files = [f for f in os.listdir(dashboard_dir) if f.endswith('.html')]
     pdf_files = [f for f in os.listdir(dashboard_dir) if f.endswith('.pdf')]
     excel_files = [f for f in os.listdir(temp_dir) if f.endswith('.xlsx')]
-    # Read dashboard HTML for embedding
     dashboard_html = ''
     if html_files:
         with open(os.path.join(dashboard_dir, html_files[0]), 'r', encoding='utf-8') as f:
-            dashboard_html = f.read()
+            dashboard_html = f.read().replace('{job_id}', job_id)
     # Results page template
     return render_template_string('''
     <!doctype html>
@@ -182,6 +181,14 @@ def results(job_id):
     </body>
     </html>
     ''', dashboard_html=Markup(dashboard_html), job_id=job_id, pdf_files=pdf_files, excel_files=excel_files)
+
+@app.route('/results/<job_id>/image/<filename>')
+def serve_dashboard_image(job_id, filename):
+    temp_dir = os.path.join('webapp_results', job_id, 'Images')
+    path = os.path.join(temp_dir, filename)
+    if os.path.exists(path):
+        return send_file(path)
+    return "Image not found", 404
 
 @app.route('/download/<job_id>/<filetype>')
 def download_file(job_id, filetype):
@@ -427,6 +434,8 @@ def run_dns_lookup(input_csv_path, output_dir):
     create_and_embed_chart(dmarc_policy, "DMARC Policy", "dmarc_policy.png", "J25")
     create_and_embed_chart(whois_chart_data, "WHOIS Summary", "whois_chart.png", "A49")
     wb.save(final_output_file)
+    def dashboard_image_url(filename):
+        return f"/results/{os.path.basename(output_dir)}/image/{filename}"
     def write_summary_table(f, title, summary_dict):
         f.write('<table class="summary-table"><tr><th>Category</th><th>Count</th></tr>')
         for k, v in summary_dict.items():
@@ -549,8 +558,8 @@ def run_dns_lookup(input_csv_path, output_dir):
         write_summary_table(f, None, spf_chart_data)
         f.write('</div>')
         f.write('<div class="dashboard-img-container">')
-        f.write('<span class="tooltip"><img class="dashboard-img" src="../Images/spf_chart.png" alt="SPF Summary" title="SPF Chart: Distribution of SPF record types."/><span class="tooltiptext">SPF Chart: Shows distribution of SPF record types across domains.</span></span>')
-        f.write('<a class="download-btn" href="../Images/spf_chart.png" download>Download SPF Image</a>')
+        f.write(f'<span class="tooltip"><img class="dashboard-img" src="/results/{{job_id}}/image/spf_chart.png" alt="SPF Summary" title="SPF Chart: Distribution of SPF record types."/><span class="tooltiptext">SPF Chart: Shows distribution of SPF record types across domains.</span></span>')
+        f.write(f'<a class="download-btn" href="/results/{{job_id}}/image/spf_chart.png" download>Download SPF Image</a>')
         f.write('</div>')
         f.write('</div><hr>')
         # MX
@@ -560,8 +569,8 @@ def run_dns_lookup(input_csv_path, output_dir):
         write_summary_table(f, None, mx_chart_data)
         f.write('</div>')
         f.write('<div class="dashboard-img-container">')
-        f.write('<span class="tooltip"><img class="dashboard-img" src="../Images/mx_chart.png" alt="MX Summary" title="MX Chart: Distribution of MX record types."/><span class="tooltiptext">MX Chart: Shows distribution of MX record types across domains.</span></span>')
-        f.write('<a class="download-btn" href="../Images/mx_chart.png" download>Download MX Image</a>')
+        f.write(f'<span class="tooltip"><img class="dashboard-img" src="/results/{{job_id}}/image/mx_chart.png" alt="MX Summary" title="MX Chart: Distribution of MX record types."/><span class="tooltiptext">MX Chart: Shows distribution of MX record types across domains.</span></span>')
+        f.write(f'<a class="download-btn" href="/results/{{job_id}}/image/mx_chart.png" download>Download MX Image</a>')
         f.write('</div>')
         f.write('</div><hr>')
         # DMARC Ownership
@@ -571,8 +580,8 @@ def run_dns_lookup(input_csv_path, output_dir):
         write_summary_table(f, None, dmarc_ownership)
         f.write('</div>')
         f.write('<div class="dashboard-img-container">')
-        f.write('<span class="tooltip"><img class="dashboard-img" src="../Images/dmarc_ownership.png" alt="DMARC Ownership" title="DMARC Ownership Chart: Ownership status."/><span class="tooltiptext">DMARC Ownership Chart: Shows DMARC ownership status across domains.</span></span>')
-        f.write('<a class="download-btn" href="../Images/dmarc_ownership.png" download>Download DMARC Ownership Image</a>')
+        f.write(f'<span class="tooltip"><img class="dashboard-img" src="/results/{{job_id}}/image/dmarc_ownership.png" alt="DMARC Ownership" title="DMARC Ownership Chart: Ownership status."/><span class="tooltiptext">DMARC Ownership Chart: Shows DMARC ownership status across domains.</span></span>')
+        f.write(f'<a class="download-btn" href="/results/{{job_id}}/image/dmarc_ownership.png" download>Download DMARC Ownership Image</a>')
         f.write('</div>')
         f.write('</div><hr>')
         # DMARC Policy
@@ -582,8 +591,8 @@ def run_dns_lookup(input_csv_path, output_dir):
         write_summary_table(f, None, dmarc_policy)
         f.write('</div>')
         f.write('<div class="dashboard-img-container">')
-        f.write('<span class="tooltip"><img class="dashboard-img" src="../Images/dmarc_policy.png" alt="DMARC Policy" title="DMARC Policy Chart: Policy status."/><span class="tooltiptext">DMARC Policy Chart: Shows DMARC policy status across domains.</span></span>')
-        f.write('<a class="download-btn" href="../Images/dmarc_policy.png" download>Download DMARC Policy Image</a>')
+        f.write(f'<span class="tooltip"><img class="dashboard-img" src="/results/{{job_id}}/image/dmarc_policy.png" alt="DMARC Policy" title="DMARC Policy Chart: Policy status."/><span class="tooltiptext">DMARC Policy Chart: Shows DMARC policy status across domains.</span></span>')
+        f.write(f'<a class="download-btn" href="/results/{{job_id}}/image/dmarc_policy.png" download>Download DMARC Policy Image</a>')
         f.write('</div>')
         f.write('</div><hr>')
         # WHOIS
@@ -593,8 +602,8 @@ def run_dns_lookup(input_csv_path, output_dir):
         write_summary_table(f, None, whois_chart_data)
         f.write('</div>')
         f.write('<div class="dashboard-img-container">')
-        f.write('<span class="tooltip"><img class="dashboard-img" src="../Images/whois_chart.png" alt="WHOIS Summary" title="WHOIS Chart: Ownership status."/><span class="tooltiptext">WHOIS Chart: Shows domain ownership and name server status.</span></span>')
-        f.write('<a class="download-btn" href="../Images/whois_chart.png" download>Download WHOIS Image</a>')
+        f.write(f'<span class="tooltip"><img class="dashboard-img" src="/results/{{job_id}}/image/whois_chart.png" alt="WHOIS Summary" title="WHOIS Chart: Ownership status."/><span class="tooltiptext">WHOIS Chart: Shows domain ownership and name server status.</span></span>')
+        f.write(f'<a class="download-btn" href="/results/{{job_id}}/image/whois_chart.png" download>Download WHOIS Image</a>')
         f.write('</div>')
         f.write('</div><hr>')
         f.write("</body></html>")

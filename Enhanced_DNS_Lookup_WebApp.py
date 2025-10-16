@@ -503,9 +503,7 @@ def run_dns_lookup(input_csv_path, output_dir):
     dmarc_policy_pointer = get_dynamic_pointer_dmarc_policy(dmarc_policy)
     whois_pointer = get_dynamic_pointer_whois(whois_chart_data)
     unique_pointers = get_unique_pointers(spf_pointer, mx_pointer, dmarc_ownership_pointer, dmarc_policy_pointer, whois_pointer)
-    with open(html_file, "w") as f:
-        # Use .format() only for variables, not for CSS curly braces
-        html_content = '''
+    html_content = '''
         <html>
         <head>
             <title>Domain Lookup Dashboard</title>
@@ -517,21 +515,26 @@ def run_dns_lookup(input_csv_path, output_dir):
                 .pointer-title {{ font-size: 2em; font-weight: 700; color: #008A4B; margin-bottom: 22px; }}
                 ul {{ text-align: left; margin: 0 auto; max-width: 700px; padding-left: 30px; }}
                 li {{ margin-bottom: 18px; font-size: 1.15em; }}
-                .summary-section {{ display: flex; justify-content: center; align-items: flex-start; gap: 320px; margin-bottom: 240px; }}
-                .summary-table-container {{ display: flex; flex-direction: column; align-items: center; min-width: 400px; max-width: 500px; }}
+                .summary-section {{ display: flex; justify-content: center; align-items: flex-start; gap: 60px; margin-bottom: 120px; margin-left: auto; margin-right: auto; max-width: 1200px; padding-left: 32px; padding-right: 32px; box-sizing: border-box; }}
+                .summary-table-container {{ display: flex; flex-direction: column; align-items: center; min-width: 340px; max-width: 420px; margin: 0 0 0 0; padding: 16px 12px 16px 12px; box-sizing: border-box; }}
                 .summary-table-title {{ font-size: 1.35em; font-weight: 600; color: #008A4B; margin-bottom: 18px; margin-top: 0; text-align: center; }}
                 .summary-table {{ border-collapse: collapse; background: #f6fff9; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.10); width: 100%; font-size: 1.15em; }}
                 .summary-table th, .summary-table td {{ border: 1px solid #b2e5c7; padding: 14px 20px; text-align: center; }}
                 .summary-table th {{ background: #008A4B; color: #fff; font-weight: bold; font-size: 1.1em; }}
                 .summary-table tr:nth-child(even) {{ background: #e6f7ec; }}
-                .dashboard-img-container {{ display: flex; flex-direction: column; align-items: center; min-width: 400px; max-width: 500px; }}
-                .dashboard-img {{ max-width: 500px; min-width: 400px; height: 400px; border:2px solid #008A4B; margin-bottom: 10px; display: block; box-shadow: 0 2px 12px rgba(0,0,0,0.10); background: #fff; border-radius: 12px; padding: 12px; }}
+                .dashboard-img-container {{ display: flex; flex-direction: column; align-items: center; min-width: 340px; max-width: 420px; margin: 0 0 0 0; padding: 16px 12px 16px 12px; box-sizing: border-box; }}
+                .dashboard-img {{ max-width: 400px; min-width: 320px; height: 320px; border:2px solid #008A4B; margin-bottom: 10px; display: block; box-shadow: 0 2px 12px rgba(0,0,0,0.10); background: #fff; border-radius: 12px; padding: 12px; }}
                 .download-btn {{ display:inline-block; padding:10px 20px; background:#008A4B; color:#fff; text-decoration:none; border-radius:7px; margin-bottom:0px; margin-top:0px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: background 0.2s; font-size: 1.1em; }}
                 .download-btn:hover {{ background:#005A2C; }}
                 hr {{ margin:40px 0; border: none; border-top: 2px solid #b2e5c7; }}
                 .tooltip {{ position: relative; display: inline-block; }}
                 .tooltip .tooltiptext {{ visibility: hidden; width: 260px; background-color: #222; color: #fff; text-align: center; border-radius: 8px; padding: 10px; position: absolute; z-index: 1; bottom: 110%; left: 50%; margin-left: -130px; opacity: 0; transition: opacity 0.3s; font-size: 1em; }}
                 .tooltip:hover .tooltiptext {{ visibility: visible; opacity: 1; }}
+                @media (max-width: 900px) {{
+                    .summary-section {{ flex-direction: column; gap: 32px; max-width: 98vw; padding-left: 8px; padding-right: 8px; }}
+                    .summary-table-container, .dashboard-img-container {{ min-width: 0; max-width: 98vw; }}
+                    .dashboard-img {{ max-width: 98vw; min-width: 0; height: auto; }}
+                }}
             </style>
         </head>
         <body>
@@ -544,6 +547,7 @@ def run_dns_lookup(input_csv_path, output_dir):
                 <div class="pointer-title">Key Insights</div>
                 <ul>
         '''.format(total_domains=len(df), human_timestamp=human_timestamp)
+    with open(html_file, "w") as f:
         f.write(html_content)
         for pointer in unique_pointers:
             f.write(f'<li>{pointer}</li>')

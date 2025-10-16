@@ -37,33 +37,96 @@ UPLOAD_FORM = '''
   <title>Kenvue DNS Lookup Dashboard</title>
   <style>
     body { font-family: 'Segoe UI', Arial, sans-serif; background: linear-gradient(135deg, #e3f0ff 0%, #e6f7ec 100%); min-height: 100vh; margin:0; }
-    .main-header { text-align:center; background: linear-gradient(90deg, #008A4B 0%, #6FCF97 100%); color: #fff; padding: 48px 0 24px 0; font-size:2.7em; font-weight:700; letter-spacing:1px; border-radius:0 0 24px 24px; box-shadow:0 2px 16px rgba(0,0,0,0.10); }
-    .subtitle { text-align:center; color:#008A4B; font-size:1.35em; margin-top:56px; margin-bottom:128px; font-weight:500; }
-    .container { max-width: 540px; margin: 60px auto 0 auto; background: #fff; padding: 40px 36px 32px 36px; border-radius: 18px; box-shadow: 0 4px 24px rgba(0,0,0,0.10); }
-    .upload-label { font-size:1.15em; color:#008A4B; font-weight:600; margin-bottom:18px; display:block; }
-    .sample-link { font-weight:bold; color:#008A4B; font-size:1em; margin-bottom:18px; display:block; text-align:left; margin-top:-8px; }
-    input[type=file] { margin-bottom: 41px; font-size:1em; margin-top:8px; }
+    .main-header { display:flex; flex-direction:column; align-items:center; justify-content:center; background: linear-gradient(90deg, #008A4B 0%, #6FCF97 100%); color: #fff; gap: 0px; padding: 0px 0 0 0; font-size:2em; font-weight:700; letter-spacing:1px; border-radius:0 0 24px 24px; box-shadow:0 2px 16px rgba(0,0,0,0.10); }
+    .kenvue-logo-top { height:156px; margin-bottom:0px; margin-top:0px; border-radius:0px; clip-path: inset(10% 0 10% 0); background:transparent; box-shadow:none; display:block; }
+    .main-header-text { width:100%; text-align:center; font-size:2em; font-weight:700; margin-top:0px; margin-bottom:3px; line-height: 1.2; letter-spacing:1px; padding:20px 0 14px 0; }
+    .subtitle { text-align:center; color:#008A4B; font-size:1.35em; margin-top:40px; margin-bottom:64px; font-weight:500; }
+    .container { max-width: 540px; margin: 0 auto 0 auto; background: #fff; padding: 40px 36px 32px 36px; border-radius: 18px; box-shadow: 0 4px 24px rgba(0,0,0,0.10); display: flex; flex-direction: column; align-items: center; }
+    .info-box { background:#e6f7ec; color:#222; border-radius:10px; padding:18px 24px; margin-bottom:48px; font-size:1.08em; box-shadow:0 2px 8px rgba(0,0,0,0.07); text-align: center; }
+    .upload-label, .sample-link { text-align: center; display: inline; width: auto; }
+    .upload-row { width:100%; text-align:center; margin-bottom:18px; }
+    form, input[type=file], button { text-align: center; width: 100%; }
+    form { width: 100%; display: flex; flex-direction: column; align-items: center; }
+    input[type=file] { margin-bottom: 28px; margin-top: 18px; font-size:1em; display:block; text-align:center; margin-left:30%; margin-right:0; width: 60%; }
     button { background: linear-gradient(90deg, #008A4B 0%, #6FCF97 100%); color: #fff; border: none; padding: 14px 32px; border-radius: 8px; font-size: 1.15em; font-weight:600; cursor: pointer; box-shadow:0 2px 8px rgba(0,0,0,0.08); transition: background 0.2s; }
     button:hover { background: #005A2C; }
-    .info-box { background:#e6f7ec; color:#222; border-radius:10px; padding:18px 24px; margin-bottom:48px; font-size:1.08em; box-shadow:0 2px 8px rgba(0,0,0,0.07); }
     .footer { text-align:center; color:#888; font-size:1em; margin-top:48px; }
-    .kenvue-logo { width:120px; margin-bottom:18px; display:block; margin-left:auto; margin-right:auto; }
+    .spinner { display: none; margin: 18px auto 0 auto; border: 6px solid #e6f7ec; border-top: 6px solid #008A4B; border-radius: 50%; width: 44px; height: 44px; animation: spin 1s linear infinite; }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+    .success-message { display: none; color: #008A4B; font-size: 1.15em; font-weight: 600; margin-top: 22px; margin-bottom: 0px; text-align: center; }
+    .domain-preview { display: none; background: #f6fff9; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); padding: 18px 18px; margin-bottom: 18px; font-size: 1.08em; text-align: center; }
   </style>
 </head>
 <body>
-  <div class="main-header">Kenvue DNS Lookup Dashboard</div>
+  <div class="main-header">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Kenvue_Logo_Black_RGB.svg/2560px-Kenvue_Logo_Black_RGB.svg.png" class="kenvue-logo-top" alt="Kenvue Logo"/>
+    <div class="main-header-text">Kenvue DNS Lookup Dashboard</div>
+  </div>
   <div class="subtitle">Professional DNS, DMARC, SPF, MX & WHOIS Analysis for Your Domains</div>
   <div class="container">
-    <img src="https://kenvue.com/themes/custom/kenvue/logo.svg" class="kenvue-logo" alt="Kenvue Logo" onerror="this.onerror=null;this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Kenvue_Logo_Black_RGB.svg/1200px-Kenvue_Logo_Black_RGB.svg.png';"/>
     <div class="info-box">Upload your domain list (CSV format). Get instant dashboard, PDF, and Excel results with actionable insights. All data is processed securely and privately.</div>
-    <form method="post" action="/process" enctype="multipart/form-data">
-      <label class="upload-label">Upload Domains CSV:</label>
-      <a class="sample-link" href="/download-sample" target="_blank">Download Sample File</a>
-      <input type="file" name="domains_csv" accept=".csv" required><br>
-      <button type="submit">Generate Report</button>
+    <form id="uploadForm" method="post" action="/process" enctype="multipart/form-data" onsubmit="return handleFormSubmit(event)">
+      <div class="upload-row">
+        <label class="upload-label">Upload Domains CSV:</label>
+        <a class="sample-link" href="/download-sample" target="_blank">Download Sample File</a>
+      </div>
+      <input type="file" name="domains_csv" id="domains_csv" accept=".csv" required onchange="showDomainPreview(event)"><br>
+      <div class="domain-preview" id="domainPreview" style="display:none;"></div>
+      <button type="submit" id="submitBtn">Generate Report</button>
+      <div class="spinner" id="spinner"></div>
+      <div class="success-message" id="successMsg">Report generated successfully! Redirecting...</div>
     </form>
   </div>
   <div class="footer">&copy; 2025 Kenvue | Powered by Python & Flask</div>
+  <script>
+    function showDomainPreview(e) {
+      const file = e.target.files[0];
+      if (!file) { document.getElementById('domainPreview').style.display = 'none'; return; }
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const lines = evt.target.result.split(/\r?\n/).filter(l => l.trim());
+        let preview = '<b>Domain Preview:</b><br><ul style="list-style:none;padding:0;margin:0;">';
+        let count = 0;
+        for (let i = 0; i < lines.length && count < 5; i++) {
+          let domain = lines[i].replace(/\r|\n/g, '').trim();
+          if (domain && (domain.toLowerCase().includes('domain') === false || lines.length === 1)) {
+            preview += `<li>${domain}</li>`;
+            count++;
+          }
+        }
+        preview += '</ul>';
+        document.getElementById('domainPreview').innerHTML = preview;
+        document.getElementById('domainPreview').style.display = 'block';
+      };
+      reader.readAsText(file);
+    }
+    function handleFormSubmit(e) {
+      e.preventDefault();
+      document.getElementById('submitBtn').disabled = true;
+      document.getElementById('spinner').style.display = 'block';
+      document.getElementById('successMsg').style.display = 'none';
+      var formData = new FormData(document.getElementById('uploadForm'));
+      fetch('/process', { method: 'POST', body: formData })
+        .then(response => {
+          if (response.redirected) {
+            document.getElementById('spinner').style.display = 'none';
+            document.getElementById('successMsg').style.display = 'block';
+            setTimeout(() => { window.location.href = response.url; }, 1200);
+          } else {
+            document.getElementById('spinner').style.display = 'none';
+            document.getElementById('submitBtn').disabled = false;
+            alert('Error generating report.');
+          }
+        })
+        .catch(() => {
+          document.getElementById('spinner').style.display = 'none';
+          document.getElementById('submitBtn').disabled = false;
+          alert('Error generating report.');
+        });
+      return false;
+    }
+    document.getElementById('domains_csv').addEventListener('change', showDomainPreview);
+  </script>
 </body>
 </html>
 '''
@@ -98,14 +161,12 @@ def results(job_id):
         .file-links { margin: 32px 0 0 0; text-align:center; }
         .file-btn { display:inline-block; margin:0 18px 18px 0; padding:12px 28px; background:#008A4B; color:#fff; border-radius:7px; text-decoration:none; font-size:1.1em; font-weight:600; box-shadow:0 2px 8px rgba(0,0,0,0.08); transition: background 0.2s; }
         .file-btn:hover { background:#005A2C; }
-        .section-title { font-size:1.3em; color:#008A4B; font-weight:600; margin-bottom:18px; text-align:center; }
         .dashboard-embed { border:2px solid #008A4B; border-radius:12px; box-shadow:0 2px 12px rgba(0,0,0,0.10); margin-bottom:32px; }
       </style>
     </head>
     <body>
       <div class="main-header">DNS Lookup Results</div>
       <div class="container">
-        <div class="section-title">Interactive Dashboard</div>
         <div class="dashboard-embed">{{ dashboard_html|safe }}</div>
         <div class="file-links">
           {% if pdf_files %}
